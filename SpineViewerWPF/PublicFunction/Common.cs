@@ -7,8 +7,10 @@ using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SpineViewerWPF;
+using SpineViewerWPF.PublicFunction;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Threading;
@@ -445,6 +447,59 @@ public class Common
         }
     }
 
+    // Gets skeleton's width and height from selected file
+    // For 4.x only
+    public static System.Drawing.PointF GetSkeletonSize(string version)
+    {
+        if (!version.StartsWith("4"))
+            throw new InvalidOperationException("Spine version isn't 4.x.");
+
+        System.Drawing.PointF size = new System.Drawing.PointF(0, 0);
+        var path = App.globalValues.SelectSpineFile;
+
+        // Read the skeleton's data
+        using (var input = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+        {
+            var extension = Path.GetExtension(path);
+
+            if (extension == "json")
+            {
+                //var root = Json.Deserialize(input) as Dictionary<string, Object>;
+                //if (root == null) throw new Exception("Invalid JSON.");
+
+                //// Skeleton.
+                //if (root.ContainsKey("skeleton"))
+                //{
+                //    var skeletonMap = (Dictionary<string, Object>)root["skeleton"];
+                //    skeletonData.hash = (string)skeletonMap["hash"];
+                //    skeletonData.version = (string)skeletonMap["spine"];
+                //    skeletonData.x = GetFloat(skeletonMap, "x", 0);
+                //    skeletonData.y = GetFloat(skeletonMap, "y", 0);
+                //    skeletonData.width = GetFloat(skeletonMap, "width", 0);
+                //    skeletonData.height = GetFloat(skeletonMap, "height", 0);
+                //    skeletonData.fps = GetFloat(skeletonMap, "fps", 30);
+                //    skeletonData.imagesPath = GetString(skeletonMap, "images", null);
+                //    skeletonData.audioPath = GetString(skeletonMap, "audio", null);
+                //}
+                throw new InvalidOperationException("JSON parsing not implemented.");
+            } else
+            {
+                var skeletonInput = new SkeletonInputWrapper(version, input);
+
+                // skip unnecessary parts
+                skeletonInput.ReadLong();       // hash
+                skeletonInput.ReadString();     // version
+                skeletonInput.ReadFloat();      // x
+                skeletonInput.ReadFloat();      // y
+
+                // save necessary ones
+                size.X = skeletonInput.ReadFloat();     // width
+                size.Y = skeletonInput.ReadFloat();     // height
+            }
+        }
+
+        return size;
+    }
 }
 
 

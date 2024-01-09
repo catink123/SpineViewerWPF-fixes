@@ -124,17 +124,28 @@ namespace SpineViewerWPF.Windows
                 return;
             }
 
-            double setWidth;
-            double setHeight;
-            if (!double.TryParse(tb_Canvas_X.Text,out setWidth) || !double.TryParse(tb_Canvas_Y.Text, out setHeight))
+            if ((bool)tb_Canvas_FitSkeleton.IsChecked)
             {
-                System.Windows.MessageBox.Show("Please Set Currect Canvas Value！");
-                return;
+                var skeletonSize = Common.GetSkeletonSize(cb_Version.SelectionBoxItem.ToString());
+                App.globalValues.FrameWidth = skeletonSize.X;
+                App.globalValues.FrameHeight = skeletonSize.Y;
+                App.canvasWidth = skeletonSize.X;
+                App.canvasHeight = skeletonSize.Y;
+            } else
+            {
+                double setWidth;
+                double setHeight;
+                if (!double.TryParse(tb_Canvas_X.Text,out setWidth) || !double.TryParse(tb_Canvas_Y.Text, out setHeight))
+                {
+                    System.Windows.MessageBox.Show("Please Set Currect Canvas Value！");
+                    return;
+                }
+
+                App.globalValues.FrameWidth = setWidth;
+                App.globalValues.FrameHeight = setHeight;
+                App.canvasWidth = setWidth;
+                App.canvasHeight = setHeight;
             }
-            App.globalValues.FrameWidth = setWidth;
-            App.globalValues.FrameHeight = setHeight;
-            App.canvasWidth = setWidth;
-            App.canvasHeight = setHeight;
             App.isNew = true;
 
             if (tb_Muilt_Texture.Text.Trim() != "")
